@@ -291,6 +291,10 @@ async fn register<'a>(
     let req = requests::register_request(&name, events)?;
     let res = client.call(req).await?;
     if res.status() != http::StatusCode::OK {
+        let body = res.into_body();
+        let body = hyper::body::to_bytes(body).await?;
+        let body = String::from_utf8_lossy(&*body);
+        println!("extension response body: {}", body);
         return Err(ExtensionError::boxed("unable to register the extension"));
     }
 
